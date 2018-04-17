@@ -60,6 +60,15 @@ You can find
 [Apache](https://manual.seafile.com/deploy/deploy_with_apache.html) sample 
 configurations in official Seafile Server [Manual](https://manual.seafile.com/).
 
+### Turn on SSL encryption
+
+1. configure your proxy to use SSL (see [configuration
+   samples](proxy-conf/nginx.conf.example))
+2. update config files :
+    - `ccnet.conf: SERVICE_URL = https://seafile.example.com`
+    - `seahub_settings.py: FILE_SERVER_ROOT ='https://seafile.example.com/seafhttp'`
+3. restart `docker restart <container>`
+
 ### Supported ENV variables
 
 When you running container, you can pass several enviroment variables (with **--env** option of **docker run** command):

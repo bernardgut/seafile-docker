@@ -23,7 +23,8 @@ if [ "x$1" != "x" ]; then
 fi
 
 #[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="1.2.0"
-[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="18c649203f009ef1d77d6f8301eba09af3777adf"
+[ -z $LIBONIG_VERSION ] && LIBONIG_VERSION="6.8.2"
+[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="1.2.10"
 [ -z $LIBSEARPC_VERSION ] && LIBSEARPC_VERSION="3.1-latest"
 ##################################
 # Where we should install Seahub #
@@ -81,13 +82,17 @@ apk add --virtual .build_dep \
 
 PYTHON_PACKAGES_DIR=`python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
 
+
+#wget https://github.com/kkos/oniguruma/archive/v${LIBONIG_VERSION}.tar.gz -O- | tar xzf -
+#cd oniguruma-${LIBONIG_VERSION}/ && autoreconf -vfi && ./configure && make -j4 && make install
+
 ####################
 # Install libevhtp #
 ####################
 #wget https://github.com/ellzey/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
-wget https://github.com/haiwen/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
+wget https://github.com/criticalstack/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
 #https://github.com/haiwen/libevhtp/archive/18c649203f009ef1d77d6f8301eba09af3777adf.zip
-cd libevhtp-${LIBEVHTP_VERSION}/ && cmake -DEVHTP_DISABLE_SSL=ON -DEVHTP_BUILD_SHARED=ON . && make && make install && cp oniguruma/onigposix.h /usr/include/
+cd libevhtp-${LIBEVHTP_VERSION}/ && cmake -DEVHTP_DISABLE_SSL=ON -DEVHTP_BUILD_SHARED=ON . && make -j4 && make install && cp oniguruma/onigposix.h /usr/include/
 
 ###################################
 # Download all Seafile components #
@@ -135,7 +140,7 @@ tar czf /usr/local/share/seafile/seahub.tgz -C $WORK_DIR/seahub-${SEAFILE_VERSIO
 ###############################
 # Build and install libSeaRPC #
 ###############################
-cd $WORK_DIR/libsearpc-${LIBSEARPC_VERSION}/ && ./autogen.sh && ./configure && make && make install
+cd $WORK_DIR/libsearpc-${LIBSEARPC_VERSION}/ && ./autogen.sh && ./configure && make -j4 && make install
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
@@ -145,7 +150,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 cd $WORK_DIR/ccnet-server-${SEAFILE_VERSION}-server/ && \
 	./autogen.sh && \
     ./configure --with-mysql --with-postgresql --enable-python && \
-		make && make install
+		make -j4 && make install
 
 
 ####################################
@@ -158,7 +163,7 @@ cd $WORK_DIR/seafile-server-${SEAFILE_VERSION}-server/
 patch -p1 < /tmp/seafile-server.patch
 ./autogen.sh && \
     ./configure --with-mysql --with-postgresql --enable-python && \
-		make && make install
+		make -j4 && make install
 
 #Copy some useful scripts to /usr/local/bin
 #mkdir -p /usr/local/bin
