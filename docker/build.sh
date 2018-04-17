@@ -17,7 +17,7 @@ PATH="${PATH}:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 # Get Seafile Version from first arg #
 #  (or use 6.0.5 as default)         #
 ######################################
-SEAFILE_VERSION="6.0.10"
+SEAFILE_VERSION="6.2.5"
 if [ "x$1" != "x" ]; then
     SEAFILE_VERSION=$1
 fi

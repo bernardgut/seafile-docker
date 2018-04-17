@@ -1,0 +1,66 @@
+server {
+    listen [::]:80;
+    listen      80;
+    server_name  bagbox.gotdn.ch;
+    rewrite ^ https://$http_host$request_uri? permanent;	# force redirect http to https
+
+    # Enables or disables emitting nginx version on error pages and in the "Server" response header field.
+    server_tokens off;
+}
+
+server {
+    listen 443 http2;
+    listen [::]:443 http2;
+    ssl on;
+    ssl_certificate /etc/ssl/certs/server.domain.com.pem;    	# path to your cacert.pem
+    ssl_certificate_key /etc/ssl/private/server.domain.com.pem;	# path to your privkey.pem
+    server_name server.domain.com;
+    ssl_session_timeout 5m;
+     ssl_session_cache shared:SSL:5m;
+    # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
+     ssl_dhparam /etc/nginx/dhparam.pem;
+
+     # secure settings (A+ at SSL Labs ssltest at time of writing)
+     # see https://wiki.mozilla.org/Security/Server_Side_TLS#Nginx
+     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+     ssl_ciphers EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA512:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:ECDH+AESGCM:ECDH+AES256:DH+AESGCM:DH+AES256:!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS;
+     ssl_prefer_server_ciphers on;
+
+     proxy_set_header X-Forwarded-For $remote_addr;
+
+    # force https on next visit
+     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+     # obfuscate nginx version
+    server_tokens off;
+
+     location ^~ / {
+         # seahub
+        proxy_pass         http://127.0.0.1:8000;
+         proxy_set_header   Host $host;
+         proxy_set_header   X-Real-IP $remote_addr;
+         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+         proxy_set_header   X-Forwarded-Host $server_name;
+         proxy_set_header   X-Forwarded-Proto https;
+
+        access_log      /var/log/nginx/seahub.access.log;
+         error_log       /var/log/nginx/seahub.error.log;
+
+         proxy_read_timeout  1200s;
+
+         client_max_body_size 0;
+    }
+
+    location ^~ /seafhttp {
+        rewrite ^/seafhttp(.*)$ $1 break;
+        proxy_pass http://127.0.0.1:8082;
+         client_max_body_size 0;
+         proxy_connect_timeout  36000s;
+         proxy_read_timeout  36000s;
+         proxy_send_timeout  36000s;
+         send_timeout  36000s;
+    }
+
+    location /media {
+         root <seafile_root>/seafile-server/seahub;
+    }
+}
