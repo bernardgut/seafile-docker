@@ -1,13 +1,17 @@
 # Seafile Server Docker image
-[Seafile](http://seafile.com/) server Docker image based on [Alpine Linux](https://hub.docker.com/_/alpine/).
+[Seafile](http://seafile.com/) server Docker image based on [Alpine Linux](https://hub.docker.com/_/alpine/). 
+- No Proxy: Does not contains a proxy. You can run your own proxy such as nginx, lightpd
+  or haaproxy with the sample configs provided.
+- No DB: Contains by default SQLite in the container. You can however run your own
+  mysql instance such as MariaDB outside of the container, with the config
+  provided.
 
-Also in my [Github repository](https://github.com/VGoshev/seafile-docker) you can find some usefull scripts for helping running containers.
 
 ## Supported tags and respective `Dockerfile` links
 
-* [`6.2.5`](https://github.com/VGoshev/seafile-docker/blob/6.2.2/docker/Dockerfile), [`latest`](https://github.com/VGoshev/seafile-docker/blob/master/docker/Dockerfile) - Seafile Server v6.2.5 - latest available version
+* [`6.2.5`](https://github.com/bernardgut/seafile-docker/blob/6.2.5/docker/Dockerfile), [`latest`](https://github.com/bernardgut/seafile-docker/blob/master/docker/Dockerfile) - Seafile Server v6.2.5 - latest available version
 
-Dockerfiles for older versions of Seafile Server you can find [there](https://github.com/VGoshev/seafile-docker/tags).
+Dockerfiles for older versions of Seafile Server you can find [there](https://github.com/bernardgut/seafile-docker/tags).
 
 ## Quickstart
 
@@ -19,8 +23,7 @@ docker run \
   -p 127.0.0.1:8082:8082 \  
   -ti sunx/seafile`
 ```
-Containers, based on this image will automatically configure 
- Seafile enviroment if there isn't any. If Seafile enviroment is from previous version of Seafile, container will automatically upgrade it to latest version (by calling Seafile upgrade scripts).
+Containers, based on this image will automatically configure Seafile enviroment if there isn't any. If Seafile enviroment is from previous version of Seafile, container will automatically upgrade it to the latest version (by calling Seafile upgrade scripts).
  
 But I would advise you to do data backups before upgrading image 
  (to not lose your data in case of bugs in upgrade logic of this image or Seafile upgrde scripts).
@@ -46,15 +49,15 @@ This image doesnt contain any web-servers, because you, usually, already have so
 
 
 For Web-server configuration, as media directory location you should enter
-`<volume/path>/seafile-server/seahub/media`
+`<volume/path>/seafile-server/seahub
 
-In [httpd-conf](https://github.com/VGoshev/seafile-docker/blob/master/httpd-conf/) directory you can find
-[lighttpd](https://www.lighttpd.net/) [config example](https://github.com/VGoshev/seafile-docker/blob/master/httpd-conf/lighttpd.conf.example) and
-[haaproxy](https://www.haproxy.com/) [config example](https://github.com/VGoshev/seafile-docker/blob/master/httpd-conf/haproxy.cfg).
+In [httpd-conf](proxy-conf) directory you can find
+[nginx](https://www.nginx.com/) [config example](proxy-conf/nginx.conf.example),
+[lighttpd](https://www.lighttpd.net/) [config example](proxy-conf/lighttpd.conf.example) and [haaproxy](https://www.haproxy.com/) [config example](proxy-conf/haproxy.cfg.example).
 
 You can find 
 [Nginx](https://manual.seafile.com/deploy/deploy_with_nginx.html) and 
-[Apache](https://manual.seafile.com/deploy/deploy_with_apache.html) 
+[Apache](https://manual.seafile.com/deploy/deploy_with_apache.html) sample 
 configurations in official Seafile Server [Manual](https://manual.seafile.com/).
 
 ### Supported ENV variables
@@ -93,10 +96,10 @@ you can add empty file named `.no-update` to directory `/home/seafile` in your c
 
 * At this moment most seafile scripts (which are located in `/usr/local/share/seafile/scripts` directory) aren't working properly, but I do not think that they are to usefull for this image (scripts `seaf-fsck.sh` and `seaf-gc.sh` are working correctly and also avaliable as `/usr/local/bin/seafile-fsck` and `/usr/local/bin/seafile-gc`).
 
-* This image confugure sqlite-based Seafile server installation. If you want to run Seafile server witn MySQL\MariaDB, then you can configure it manually, or say to me about it and I'll add such configuration option.
+* On your proxy, you might experience read errors such as ` [error] 4766#4766: *2 open()  "<seafile_dir>/seafile-server/seahub/media/avatars/default.png"  failed (2: No such file or directory) `. That is because `seafile-server/seahub/media/avatars` is a symlink to `/home/seafile/seahub-data/avatars`, which exists only in the container. To fix this simply fix the link with a relative one: In `<seafile_dir>/seafile-server-seahub/media` do `ln -s ../../../seahub-data/avatars avatars`.  
 
 ## License
 
-This Dockerfile and scripts are released under [MIT License](https://github.com/VGoshev/seafile-docker/blob/master/LICENSE).
+This Dockerfile and scripts are released under [MIT License](https://github.com/bernardgut/seafile-docker/blob/master/LICENSE). All credits go to [VGoshev](https://github.com/VGoshev/seafile-docker) for the original idea.
 
 [Seafile](https://github.com/haiwen/seafile/blob/master/LICENSE.txt) and [Alpine Linux](https://www.alpinelinux.org/) have their own licenses.
