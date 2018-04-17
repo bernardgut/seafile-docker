@@ -5,6 +5,7 @@
 - No DB: Contains by default SQLite in the container. You can however run your own
   mysql instance such as MariaDB outside of the container, with the config
   provided.
+- No Custom Config : Simply builds the latest seafile version and it's dependencies and run it inside a docker container. Nothing more.
 
 
 ## Supported tags and respective `Dockerfile` links
