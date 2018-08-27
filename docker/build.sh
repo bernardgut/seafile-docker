@@ -17,14 +17,14 @@ PATH="${PATH}:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 # Get Seafile Version from first arg #
 #  (or use 6.0.5 as default)         #
 ######################################
-SEAFILE_VERSION="6.2.5"
+SEAFILE_VERSION="6.3.2-server"
 if [ "x$1" != "x" ]; then
     SEAFILE_VERSION=$1
 fi
 
 #[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="1.2.0"
-[ -z $LIBONIG_VERSION ] && LIBONIG_VERSION="6.8.2"
-[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="1.2.10"
+#[ -z $LIBONIG_VERSION ] && LIBONIG_VERSION="6.8.2"
+[ -z $LIBEVHTP_VERSION  ] && LIBEVHTP_VERSION="1.1.6"
 [ -z $LIBSEARPC_VERSION ] && LIBSEARPC_VERSION="3.1-latest"
 ##################################
 # Where we should install Seahub #
@@ -89,8 +89,9 @@ PYTHON_PACKAGES_DIR=`python -c "from distutils.sysconfig import get_python_lib; 
 ####################
 # Install libevhtp #
 ####################
-#wget https://github.com/ellzey/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
-wget https://github.com/criticalstack/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
+wget https://github.com/ellzey/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
+# note: hard old dep. latest not supported
+#wget https://github.com/criticalstack/libevhtp/archive/${LIBEVHTP_VERSION}.tar.gz -O- | tar xzf -
 #https://github.com/haiwen/libevhtp/archive/18c649203f009ef1d77d6f8301eba09af3777adf.zip
 cd libevhtp-${LIBEVHTP_VERSION}/ && cmake -DEVHTP_DISABLE_SSL=ON -DEVHTP_BUILD_SHARED=ON . && make -j4 && make install && cp oniguruma/onigposix.h /usr/include/
 
@@ -200,7 +201,7 @@ echo "Seafile-Server has been built successfully!"
 addgroup -g "$uGID" seafile
 adduser -D -s /bin/sh -g "Seafile Server" -G seafile -h "$SEAFILE_SERVER_DIR" -u "$uUID" seafile
 
-# Create seafile-server dir 
+# Create seafile-server dir
 su - -c "mkdir ${SEAFILE_SERVER_DIR}/seafile-server" seafile
 
 # Store seafile version and if tis is edge image
